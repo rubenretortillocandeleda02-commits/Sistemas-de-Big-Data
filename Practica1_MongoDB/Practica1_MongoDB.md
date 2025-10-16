@@ -70,7 +70,6 @@ db.productos.find({"stock" : {$lt : 5}})
 ```
 
 <img src="imagenes\9.png">
-<br></br>
 
 **2. Proyección de campos específicos. Se desea mostrar únicamente el nombre y el precio de todos los productos.**
 
@@ -79,7 +78,6 @@ db.productos.find({}, {nombre : 1, precio : 1, _id : 0})
 ```
 
 <img src="imagenes\10.png">
-<br></br>
 
 **3. Eliminar un producto por su identificador. Se desea borrar un documento concreto de la colección, por ejemplo, el producto con _id: “SKU-001”.**
 
