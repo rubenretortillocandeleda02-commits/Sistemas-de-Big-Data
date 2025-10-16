@@ -46,6 +46,7 @@ db.productos.updateOne({"_id" : "SKU-001"}, {$inc: { stock: 10 }})
 <img src="imagenes\5.png">
 
 Comprobamos que a aumentado:
+
 <img src="imagenes\6.png">
 
 ### Ejercicio 4: Añadir una nueva reseña (review) a un producto.
