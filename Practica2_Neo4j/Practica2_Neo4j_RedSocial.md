@@ -102,10 +102,10 @@ MATCH (a:User {name: 'Juan'})-[:LIKED]->(b:Post) RETURN a.name, b.content
 
 ### Ejercicio 5: Explorando el Grafo Visualmente.
 1. **Ejecuta algunas de tus consultas anteriores en el Neo4j Browser.**
-2. **Experimenta con las opciones de visualización:
-· Arrastra nodos para reorganizar el grafo.
-· Haz doble clic en un nodo para expandir sus relaciones.
-· Usa el panel de estilos para cambiar colores y tamaños de nodos/relaciones.**
+2. **Experimenta con las opciones de visualización:**
+- **Arrastra nodos para reorganizar el grafo.**
+- **Haz doble clic en un nodo para expandir sus relaciones.**
+- **Usa el panel de estilos para cambiar colores y tamaños de nodos/relaciones.**
 
 **Realiza una captura de pantalla de una visualización interesante de tu red social.**
 <img src="imagenes\5.png">
