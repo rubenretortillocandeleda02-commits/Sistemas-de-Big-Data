@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Tienda DynamoDB</title>
+    <style>
+        :root {
+            --bg-body: #121212;
+            --bg-panel: #1e1e1e;
+            --bg-input: #2c2c2c;
+            --primary: #00e5ff;
+            /* Color Verde Azulado */
+            --primary-hover: #00b8cc;
+            --secondary: #bb86fc;
+            --danger: #cf6679;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0a0;
+            --border: #333;
+            --radius: 8px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR */
+        aside {
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .control-group {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: var(--radius);
+        }
+
+        .control-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            background: var(--primary);
+            color: #000;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        button.secondary:hover {
+            background: rgba(187, 134, 252, 0.1);
+        }
+
+        button.danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+        main {
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            width: auto;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .view-panel {
+            display: none;
+            flex: 1;
+            background: var(--bg-panel);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        .view-panel.active {
+            display: flex;
+        }
+
+        .table-container {
+            overflow: auto;
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-panel);
+            text-align: left;
+            padding: 15px;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tag {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            background: rgba(3, 218, 198, 0.1);
+            color: var(--secondary);
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--bg-panel);
+            border-left: 5px solid var(--primary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transform: translateY(150%);
+            transition: 0.3s;
+        }
+
+        #toast.show {
+            transform: translateY(0);
+        }
+
+        #toast.error {
+            border-left-color: var(--danger);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR DE ACCIONES -->
+    <aside>
+        <div class="brand">⚡ DynaStore</div>
+
+        <!-- Buscar Pedido -->
+        <div class="control-group">
+            <span class="control-title">🔍 Buscar Pedido</span>
+            <input type="number" id="searchId" placeholder="ID Pedido...">
+            <button onclick="buscarPedido()" class="secondary">Buscar</button>
+            <div id="searchResult" style="margin-top:10px; font-size:0.85rem; color:var(--secondary); min-height:1em;">
+            </div>
+        </div>
+
+        <!-- Filtrar Pedidos -->
+        <div class="control-group">
+            <span class="control-title">🌪️ Filtrar por Nombre</span>
+            <input type="text" id="filterName" placeholder="Nombre cliente...">
+            <button onclick="filtrarPedidos()" class="secondary">Aplicar Filtro</button>
+        </div>
+
+        <!-- Crear Pedido -->
+        <div class="control-group">
+            <span class="control-title">🛒 Nuevo Pedido</span>
+            <input type="number" id="newOrder_Id" placeholder="ID Pedido">
+            <input type="number" id="newOrder_ProdId" placeholder="ID Producto">
+            <input type="text" id="newOrder_Name" placeholder="Nombre Cliente">
+            <input type="number" id="newOrder_Qty" placeholder="Cantidad">
+            <button onclick="crearPedido()">+ Crear Pedido</button>
+        </div>
+
+        <!-- Crear Producto -->
+        <div class="control-group">
+            <span class="control-title">📦 Nuevo Producto</span>
+            <input type="number" id="newProd_Id" placeholder="ID Producto">
+            <input type="text" id="newProd_Name" placeholder="Nombre Producto">
+            <input type="number" id="newProd_Price" placeholder="Precio">
+            <input type="number" id="newProd_Stock" placeholder="Stock">
+            <button onclick="crearProducto()">+ Crear Producto</button>
+        </div>
+    </aside>
+
+    <!-- AREA PRINCIPAL -->
+    <main>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('pedidos')">Pedidos</button>
+            <button class="tab-btn" onclick="switchTab('productos')">Productos</button>
+        </div>
+
+        <!-- VISTA PEDIDOS -->
+        <div id="view-pedidos" class="view-panel active">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <h3>Listado de Pedidos</h3>
+                <button onclick="listarPedidos()" class="secondary" style="width:auto">🔄 Actualizar</button>
+            </div>
+            <div class="table-container">
+                <table id="tablePedidos">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Producto Ref</th>
+                            <th>Cliente</th>
+                            <th>Cant.</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- VISTA PRODUCTOS -->
+        <div id="view-productos" class="view-panel">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                <h3>Inventario de Productos</h3>
+                <button onclick="listarProductos()" class="secondary" style="width:auto">🔄 Actualizar</button>
+            </div>
+            <div class="table-container">
+                <table id="tableProductos">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <div id="toast">Notificación</div>
+
+    <script>
+        const API = 'http://localhost:5000';
+
+        // TABS
+        function switchTab(tab) {
+            document.querySelectorAll('.view-panel').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`view-${tab}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // TOAST
+        function toast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.textContent = (isError ? '⚠️ ' : '✅ ') + msg;
+            t.className = isError ? 'error' : '';
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // --- API HELPERS ---
+        async function fetchAPI(endpoint, method = 'GET', body = null) {
+            try {
+                const opts = { method, headers: { 'Content-Type': 'application/json' } };
+                if (body) opts.body = JSON.stringify(body);
+                const res = await fetch(API + endpoint, opts);
+                const data = await res.json();
+                if (!res.ok) throw data;
+                return data;
+            } catch (err) {
+                console.error(err);
+                toast(err.error || 'Error de conexión', true);
+                return null;
+            }
+        }
+
+        // --- RENDER ---
+        function renderPedidos(list) {
+            const tbody = document.querySelector('#tablePedidos tbody');
+            tbody.innerHTML = '';
+            list.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="tag">#${p.pedido_id}</span></td>
+                    <td>${p.producto_id}</td>
+                    <td>${p.nombre}</td>
+                    <td>
+                        <input type="number" 
+                               value="${p.cantidad}" 
+                               style="width:60px; padding:5px; margin:0; background:transparent; border:1px solid #444;"
+                               onchange="updatePedido('${p.pedido_id}', this.value)">
+                    </td>
+                    <td>
+                        <button class="danger" style="width:auto; padding:5px 10px;" 
+                                onclick="borrarPedido('${p.pedido_id}')">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderProductos(list) {
+            const tbody = document.querySelector('#tableProductos tbody');
+            tbody.innerHTML = '';
+            list.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="tag">#${p.producto_id}</span></td>
+                    <td><strong>${p.producto}</strong></td>
+                    <td>$${p.precio}</td>
+                    <td>${p.stock} u.</td>
+                    <td>
+                        <button class="danger" style="width:auto; padding:5px 10px;" 
+                                onclick="borrarProducto('${p.producto_id}')">🗑️</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // --- ACTIONS ---
+        async function listarPedidos() {
+            const data = await fetchAPI('/pedidos');
+            if (data) {
+                // ORDENAR: sort by ID
+                data.sort((a, b) => a.pedido_id - b.pedido_id);
+                renderPedidos(data);
+            }
+        }
+
+        async function listarProductos() {
+            const data = await fetchAPI('/productos');
+            if (data) {
+                // ORDENAR: sort by ID
+                data.sort((a, b) => a.producto_id - b.producto_id);
+                renderProductos(data);
+            }
+        }
+
+        async function borrarPedido(id) {
+            if (!confirm('¿Eliminar pedido?')) return;
+            const res = await fetchAPI(`/pedidos/${id}`, 'DELETE');
+            if (res) { toast('Pedido eliminado'); listarPedidos(); }
+        }
+
+        async function borrarProducto(id) {
+            if (!confirm('¿Eliminar producto?')) return;
+            const res = await fetchAPI(`/productos/${id}`, 'DELETE');
+            if (res) { toast('Producto eliminado'); listarProductos(); }
+        }
+
+        async function updatePedido(id, nuevaCant) {
+            const res = await fetchAPI(`/pedidos/${id}`, 'PUT', { cantidad: nuevaCant });
+            if (res) toast('Cantidad actualizada');
+        }
+
+        async function crearPedido() {
+            const body = {
+                pedido_id: document.getElementById('newOrder_Id').value,
+                producto_id: document.getElementById('newOrder_ProdId').value,
+                nombre: document.getElementById('newOrder_Name').value,
+                cantidad: document.getElementById('newOrder_Qty').value
+            };
+            const res = await fetchAPI('/pedidos', 'POST', body);
+            if (res) { toast('Pedido Creado'); listarPedidos(); }
+        }
+
+        async function crearProducto() {
+            const body = {
+                producto_id: document.getElementById('newProd_Id').value,
+                producto: document.getElementById('newProd_Name').value,
+                precio: document.getElementById('newProd_Price').value,
+                stock: document.getElementById('newProd_Stock').value
+            };
+            const res = await fetchAPI('/productos', 'POST', body);
+            if (res) { toast('Producto Creado'); listarProductos(); }
+        }
+
+        async function buscarPedido() {
+            const id = document.getElementById('searchId').value;
+            if (!id) return;
+            const res = await fetchAPI(`/pedidos/${id}`);
+            const disp = document.getElementById('searchResult');
+            if (res) {
+                // Formato mejorado
+                disp.innerHTML = `👤 <strong>${res.nombre}</strong> <br> 📦 Prod: ${res.producto_id} | 🔢 Cant: ${res.cantidad}`;
+            } else {
+                disp.innerHTML = `❌ No encontrado`;
+            }
+        }
+
+        async function filtrarPedidos() {
+            const nombre = document.getElementById('filterName').value;
+            if (!nombre) return listarPedidos(); // Reset
+
+            // Encode nombre for URL
+            const res = await fetchAPI(`/pedidos/nombre/${encodeURIComponent(nombre)}`);
+            if (res) {
+                renderPedidos(res);
+                toast(`Filtrado: ${res.length} resultados`);
+                // Switch tab just in case
+                switchTab('pedidos');
+            }
+        }
+
+        // Init
+        listarPedidos();
+        listarProductos();
+
+    </script>
+</body>
+
+</html>

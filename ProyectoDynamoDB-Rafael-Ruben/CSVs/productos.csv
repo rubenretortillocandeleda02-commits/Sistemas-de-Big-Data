@@ -1,0 +1,51 @@
+producto_id,producto,precio,stock
+1,Manzanas,2.50,100
+2,Bananas,1.20,120
+3,Naranjas,3.10,80
+4,Uvas,4.00,60
+5,Fresas,5.50,50
+6,Mango,3.75,70
+7,Pera,2.30,90
+8,Piña,4.20,40
+9,Kiwis,3.60,60
+10,Cerezas,6.00,30
+11,Leche 1L,1.50,100
+12,Yogur Natural,2.10,80
+13,Queso Cheddar,5.80,50
+14,Queso Mozzarella,4.25,60
+15,Huevos 12u,3.40,90
+16,Mantequilla 250g,3.10,40
+17,Pan Integral,2.20,70
+18,Pan Blanco,1.80,80
+19,Arroz 1kg,2.00,100
+20,Harina 1kg,1.50,90
+21,Azúcar 1kg,1.75,120
+22,Sal 500g,1.20,110
+23,Pasta 500g,2.30,80
+24,Salsa Tomate 250g,2.10,60
+25,Atún en Lata 200g,3.50,50
+26,Sardinas en Lata 150g,2.40,70
+27,Pollo 1kg,5.75,40
+28,Carne de Res 1kg,7.20,30
+29,Pescado 1kg,6.50,20
+30,Jamón 250g,4.10,60
+31,Salchichas 500g,3.25,70
+32,Lechuga,1.50,80
+33,Tomate,2.20,100
+34,Zanahoria,1.10,90
+35,Patata,2.00,120
+36,Cebolla,1.25,110
+37,Ajo,1.50,50
+38,Pimiento Rojo,2.80,60
+39,Pimiento Verde,2.70,70
+40,Berenjena,3.30,40
+41,Calabacín,2.90,50
+42,Champiñones,4.20,30
+43,Maíz 500g,2.50,60
+44,Galletas 200g,2.10,80
+45,Chocolates 100g,3.40,50
+46,Jugo de Naranja 1L,2.60,70
+47,Jugo de Manzana 1L,2.50,70
+48,Café 250g,4.80,40
+49,Te 100g,3.20,50
+50,Miel 250g,5.10,30
