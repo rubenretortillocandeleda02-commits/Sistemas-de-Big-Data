@@ -14,7 +14,7 @@ while url:
     print(url)
 ```
 
-<img src="/imagenes/1.png"></img>
+<img src="imagenes/1.png"></img>
 
 <br></br>
 
@@ -36,7 +36,7 @@ for pokemon in todos_los_pokemon:
     })
 ```
 
-<img src="/imagenes/2.png"></img>
+<img src="imagenes/2.png"></img>
 
 <br></br>
 
@@ -51,4 +51,5 @@ La ventaja es que ya se tendrían todos los datos de forma estandarizada guardad
 Probablemente haría que la API fuese más lento o que dejara de funcionar.
 
 ## Conclusión
+
 Las extracción automática de datos tiene muchas ventajas frente a la descarga manual de archivo como puede ser la automatización, la escalabilidad o evitar el error humano.
