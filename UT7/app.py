@@ -5,7 +5,7 @@ from sklearn.cluster import KMeans
 
 @st.cache_data
 def cargar_gran_pergamino():
-    df = pd.read_csv("players_data.csv")
+    df = pd.read_csv("UT7/players_data.csv")
     return df
 
 datos = cargar_gran_pergamino()
